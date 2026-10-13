@@ -1,0 +1,9 @@
+{
+  "name": "np-appointment-requests",
+  "private": true,
+  "description": "Appointment request web app for a nurse practitioner, built on Google Sheets + Apps Script.",
+  "type": "module",
+  "scripts": {
+    "test": "node --test test/*.test.js"
+  }
+}

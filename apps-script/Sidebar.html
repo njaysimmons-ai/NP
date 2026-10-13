@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <style>
+    body { font: 14px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; padding: 12px; color: #1d2733; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select { width: 100%; padding: 7px 8px; font: inherit; box-sizing: border-box; }
+    .row { display: flex; gap: 8px; }
+    .row > div { flex: 1; }
+    button { margin-top: 16px; width: 100%; padding: 9px; font: inherit; font-weight: 600; background: #0b6e6e; color: #fff; border: 0; border-radius: 6px; cursor: pointer; }
+    button:disabled { opacity: .6; }
+    .msg { margin-top: 12px; padding: 8px; border-radius: 6px; }
+    .ok { background: #e3f2f1; }
+    .err { background: #fdecea; color: #b3261e; }
+    .hint { color: #5a6776; font-size: 12px; margin-top: 12px; }
+  </style>
+</head>
+<body>
+  <form id="f">
+    <label for="date">Date</label>
+    <input type="date" id="date" required>
+    <div class="row">
+      <div><label for="start">From</label><input type="time" id="start" value="09:00" required></div>
+      <div><label for="end">Until</label><input type="time" id="end" value="12:00" required></div>
+    </div>
+    <label for="minutes">Each appointment</label>
+    <select id="minutes">
+      <option value="15">15 minutes</option>
+      <option value="20">20 minutes</option>
+      <option value="30" selected>30 minutes</option>
+      <option value="45">45 minutes</option>
+      <option value="60">60 minutes</option>
+    </select>
+    <label for="repeat">Repeat weekly</label>
+    <select id="repeat">
+      <option value="0">Just this date</option>
+      <option value="1">+1 week</option>
+      <option value="3">+3 weeks (4 total)</option>
+      <option value="7">+7 weeks (8 total)</option>
+      <option value="11">+11 weeks (12 total)</option>
+    </select>
+    <button id="go" type="submit">Add slots</button>
+    <div id="msg" class="msg" hidden></div>
+    <p class="hint">Example: 9:00–12:00 with 30-minute appointments creates 6 slots.
+      Times that already exist, or that are in the past, are skipped. To remove an open time, delete its row in the Availability tab.</p>
+  </form>
+  <script>
+    var f = document.getElementById('f');
+    var msg = document.getElementById('msg');
+    var go = document.getElementById('go');
+    f.addEventListener('submit', function (e) {
+      e.preventDefault();
+      go.disabled = true;
+      msg.hidden = true;
+      google.script.run
+        .withSuccessHandler(function (n) {
+          go.disabled = false;
+          msg.className = 'msg ok';
+          msg.textContent = n ? 'Added ' + n + ' open slot' + (n === 1 ? '' : 's') + '.' : 'No new slots were added (they already exist or are in the past).';
+          msg.hidden = false;
+        })
+        .withFailureHandler(function (err) {
+          go.disabled = false;
+          msg.className = 'msg err';
+          msg.textContent = err.message;
+          msg.hidden = false;
+        })
+        .addSlots({
+          date: f.date.value,
+          start: f.start.value,
+          end: f.end.value,
+          minutes: f.minutes.value,
+          repeatWeeks: document.getElementById('repeat').value
+        });
+    });
+  </script>
+</body>
+</html>
