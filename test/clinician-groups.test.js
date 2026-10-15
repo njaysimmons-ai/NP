@@ -22,14 +22,16 @@ class FakeRange {
   setValues(values) {
     values.forEach((line, r) => line.forEach((v, c) => {
       const rule = this.sheet.validations.get(`${this.row + r},${this.col + c}`);
-      if (rule && !rule.includes(v) && v !== '') throw new Error(`validation rejected ${v}`);
-      this.sheet.set(this.row + r, this.col + c, v);
+            this.sheet.set(this.row + r, this.col + c, v);
     }));
     return this;
   }
-  getDataValidations() { return this.#map((r, c) => this.sheet.validations.get(`${r},${c}`) || null); }
-  clearDataValidations() { this.#map((r, c) => this.sheet.validations.delete(`${r},${c}`)); return this; }
-  setDataValidations(rules) {
+  getDataValidations() { throw new Error('dropdowns must not be read'); }
+  _unusedGetDataValidations() { return this.#map((r, c) => this.sheet.validations.get(`${r},${c}`) || null); }
+  clearDataValidations() { throw new Error('dropdowns must not be cleared'); }
+  _unusedClear() { this.#map((r, c) => this.sheet.validations.delete(`${r},${c}`)); return this; }
+  setDataValidations() { throw new Error('dropdowns must not be set'); }
+  _unusedSet(rules) {
     rules.forEach((line, r) => line.forEach((rule, c) => {
       if (rule) this.sheet.validations.set(`${this.row + r},${this.col + c}`, rule);
     }));
@@ -183,7 +185,7 @@ test('works on a tab with fewer groups without touching Tasks', () => {
   assert.ok(!unplaced(week, 2).includes('Ben'), 'on-task clinicians are not unplaced');
 });
 
-test('permanent and unallowed groups are respected; validation is restored', () => {
+test('permanent and unallowed groups are respected; dropdowns are left alone', () => {
   const people = NAMES.map((name) => ({ name }));
   people[0].permanent = 'AM Group 2';
   people[1].unallowed = 'Group 1, Group 3';

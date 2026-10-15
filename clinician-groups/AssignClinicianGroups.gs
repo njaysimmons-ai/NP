@@ -256,7 +256,7 @@ function assignClinicianGroups() {
       });
       fillGroups(pmGroups, pmAssignments, pmOnlyPool.concat(unusedBoth), weeklyPMGroup, dayConfig.pmKey);
 
-      // STEP 3: write the leader row in one call, bypassing dropdown validation
+      // STEP 3: write the leader row in one call
       var allCols = amGroupCols.concat(pmGroupCols);
       var allAssignments = amAssignments.concat(pmAssignments);
       var firstCol = Math.min.apply(null, allCols);
@@ -419,12 +419,13 @@ function assignClinicianGroups() {
     return array;
   }
 
-  /** Writes values to a range, temporarily removing dropdown validation. */
+  /**
+   * Writes values to a range. Script writes aren't blocked by dropdown rules,
+   * so the dropdowns are left untouched (rules such as "=Table2[Available]"
+   * can't be re-applied from Apps Script once removed).
+   */
   function writeIgnoringValidation(rng, values) {
-    var saved = rng.getDataValidations();
-    rng.clearDataValidations();
     rng.setValues(values);
-    rng.setDataValidations(saved);
   }
 
   /** Group indexes in fill order: non-IOP groups first, IOP groups last. */
